@@ -1,4 +1,5 @@
-# /-----\ Rock Paper Scissors The Game /-----\
+# ✊✌️✋ /-\ Rock Paper Scissors The Game /-\ ✋✌️✊
+
 Welcome! This is an Rock Paper Scissors game built in Python. This project utilizes OpenCV and Mediapipe for real-time hand gesture recognition. Get your camera ready to play!
 
 ## [+] Language & Libraries [+]
@@ -49,4 +50,4 @@ Welcome! This is an Rock Paper Scissors game built in Python. This project utili
 
         Trumpet_won_sfx: BenKirb (https://pixabay.com/sound-effects/musical-fanfare-1-276819)
 
-## [+] This project is licensed under the terms of the custom license included in the LICENSE.txt file. [+]
+## This project is licensed under the terms of the custom license included in the LICENSE.txt file.
