@@ -1,4 +1,4 @@
-name: Build RPS Game (Final Full Version)
+name: Build RPS Game (MediaPipe 0.10.9 Version)
 
 on:
   push:
@@ -27,16 +27,16 @@ jobs:
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install opencv-python mediapipe pygame numpy pyinstaller
+        # Specifically installing version 0.10.9 as per your requirement
+        pip install opencv-python mediapipe==0.10.9 pygame numpy pyinstaller
 
     - name: Build with PyInstaller
       shell: bash
       run: |
         if [ "$RUNNER_OS" == "Windows" ]; then
-          # Full Windows Build Command
+          # Windows-specific build using semicolon (;) for data paths
           pyinstaller --noconsole --onefile \
           --collect-all mediapipe \
-          --collect-submodules mediapipe \
           --copy-metadata mediapipe \
           --hidden-import="mediapipe.python.solutions" \
           --hidden-import="mediapipe.python.solutions.hands" \
@@ -44,10 +44,9 @@ jobs:
           --add-data "RPS_files;RPS_files" \
           RPS_The_Game.py
         else
-          # Full Mac Build Command
+          # Mac-specific build using colon (:) for data paths
           pyinstaller --noconsole --onefile \
           --collect-all mediapipe \
-          --collect-submodules mediapipe \
           --copy-metadata mediapipe \
           --hidden-import="mediapipe.python.solutions" \
           --hidden-import="mediapipe.python.solutions.hands" \
