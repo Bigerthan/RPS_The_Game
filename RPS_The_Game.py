@@ -1,3 +1,5 @@
+from mediapipe.python.solutions import hands as mp_hands
+from mediapipe.python.solutions import drawing_utils as mp_drawing
 import cv2
 import mediapipe as mp
 import numpy as np
@@ -95,8 +97,8 @@ class RPS_OpenCV():
         self.master_canvas = np.full((1080, 1920, 3), 50, dtype=np.uint8)
 
         #---------- Mediapipe ----------
-        self.mp_Hands = mp.solutions.hands
-        self.mp_Draw = mp.solutions.drawing_utils
+        self.mp_Hands = mp_hands
+        self.mp_Draw = mp_drawing
 
     def Read_images(self):
         Hand_img_size_T_CR = (344,344) #Tutorial, Choosing_rounds
