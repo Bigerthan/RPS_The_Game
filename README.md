@@ -3,6 +3,15 @@
 ### Welcome! This is an Rock Paper Scissors game built in Python. This project utilizes OpenCV and Mediapipe for real-time hand gesture recognition. Get your camera ready to play!
 
 ---
+## [+] Download The Game [+]
+
+### [-] Windows [-]
+- [RPS_The_Game_Windows](https://github.com/Bigerthan/RPS_The_Game/actions/runs/24931148621/artifacts/6639950848)
+
+### [-] macOS [-]
+- [RPS_The_Game_macOS](https://github.com/Bigerthan/RPS_The_Game/actions/runs/24931148621/artifacts/6639948586)
+
+---
 ## [+] Language & Libraries [+]
 
 ### [-] Used programming language [-]
