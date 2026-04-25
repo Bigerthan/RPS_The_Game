@@ -1,5 +1,5 @@
-from mediapipe.python.solutions import hands as mp_hands
-from mediapipe.python.solutions import drawing_utils as mp_drawing
+from mediapipe.solutions import hands as mp_hands
+from mediapipe.solutions import drawing_utils as mp_drawing
 import cv2
 import mediapipe as mp
 import numpy as np
