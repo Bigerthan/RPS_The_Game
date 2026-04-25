@@ -10,13 +10,13 @@ Download the zip file from the links below and the Game should be there!
 
 
 ### [-] Windows [-]
-- [RPS_The_Game.exe](https://github.com/Bigerthan/RPS_The_Game/actions/runs/24932346770/artifacts/6640284283)
+- [RPS_The_Game.exe](https://github.com/Bigerthan/RPS_The_Game/releases/download/v1.0.0/RPS_The_Game_Windows.zip)
 
 ### [-] Linux (ubuntu)[-]
-- [RPS_The_Game.bin](https://github.com/Bigerthan/RPS_The_Game/actions/runs/24932346770/artifacts/6640282780)
+- [RPS_The_Game.bin](https://github.com/Bigerthan/RPS_The_Game/releases/download/v1.0.0/RPS_The_Game_Linux.zip)
 
 ### [-] macOS [-]
-- [RPS_The_Game.app](https://github.com/Bigerthan/RPS_The_Game/actions/runs/24932346770/artifacts/6640282282)
+- [RPS_The_Game.app](https://github.com/Bigerthan/RPS_The_Game/releases/download/v1.0.0/RPS_The_Game_macOS.zip)
 
 ---
 ## [+] Language & Libraries [+]
