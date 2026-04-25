@@ -6,10 +6,13 @@
 ## [+] Download The Game [+]
 
 ### [-] Windows [-]
-- [RPS_The_Game_Windows](https://github.com/Bigerthan/RPS_The_Game/actions/runs/24931148621/artifacts/6639950848)
+- [RPS_The_Game.exe](https://github.com/Bigerthan/RPS_The_Game/actions/runs/24932346770/artifacts/6640284283)
+
+### [-] Linux (ubuntu)[-]
+- [RPS_The_Game.bin](https://github.com/Bigerthan/RPS_The_Game/actions/runs/24932346770/artifacts/6640282780)
 
 ### [-] macOS [-]
-- [RPS_The_Game_macOS](https://github.com/Bigerthan/RPS_The_Game/actions/runs/24931148621/artifacts/6639948586)
+- [RPS_The_Game.app](https://github.com/Bigerthan/RPS_The_Game/actions/runs/24932346770/artifacts/6640282282)
 
 ---
 ## [+] Language & Libraries [+]
