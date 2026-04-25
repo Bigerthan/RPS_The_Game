@@ -3,8 +3,6 @@ name: Build RPS Game
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 jobs:
   build:
@@ -38,5 +36,5 @@ jobs:
     - name: Upload Artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ matrix.os }}-Game-Build
+        name: ${{ matrix.os }}-Build
         path: dist/
