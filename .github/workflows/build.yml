@@ -1,4 +1,4 @@
-name: Build RPS Game (Final)
+name: Build RPS Game (Final Full Version)
 
 on:
   push:
@@ -11,6 +11,7 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [windows-latest, macos-latest]
 
@@ -32,15 +33,27 @@ jobs:
       shell: bash
       run: |
         if [ "$RUNNER_OS" == "Windows" ]; then
-          # Windows uses semicolon (;) for data paths
+          # Full Windows Build Command
           pyinstaller --noconsole --onefile \
           --collect-all mediapipe \
-          --add-data "RPS_files;RPS_files" RPS_The_Game.py
+          --collect-submodules mediapipe \
+          --copy-metadata mediapipe \
+          --hidden-import="mediapipe.python.solutions" \
+          --hidden-import="mediapipe.python.solutions.hands" \
+          --hidden-import="mediapipe.python.solutions.drawing_utils" \
+          --add-data "RPS_files;RPS_files" \
+          RPS_The_Game.py
         else
-          # Mac uses colon (:) for data paths
+          # Full Mac Build Command
           pyinstaller --noconsole --onefile \
           --collect-all mediapipe \
-          --add-data "RPS_files:RPS_files" RPS_The_Game.py
+          --collect-submodules mediapipe \
+          --copy-metadata mediapipe \
+          --hidden-import="mediapipe.python.solutions" \
+          --hidden-import="mediapipe.python.solutions.hands" \
+          --hidden-import="mediapipe.python.solutions.drawing_utils" \
+          --add-data "RPS_files:RPS_files" \
+          RPS_The_Game.py
         fi
 
     - name: Upload Artifacts
