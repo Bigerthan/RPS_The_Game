@@ -22,12 +22,12 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.10'
-        cache: 'pip'
+        # Cache removed to prevent the "No file matched" error
 
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install opencv-python==4.8.0.74 mediapipe==0.10.0 pygame numpy pyinstaller
+        pip install opencv-python mediapipe pygame numpy pyinstaller
 
     - name: Build with PyInstaller
       shell: bash
@@ -35,12 +35,10 @@ jobs:
         if [ "$RUNNER_OS" == "Windows" ]; then
           pyinstaller --noconsole --onefile --collect-all mediapipe --add-data "RPS_files;RPS_files" RPS_The_Game.py
         else
-          # Mac uses a colon (:) instead of a semicolon (;) for paths
           pyinstaller --noconsole --onefile --collect-all mediapipe --add-data "RPS_files:RPS_files" RPS_The_Game.py
         fi
 
     - name: Upload Artifacts
-    # Using 'matrix.os' in the name keeps the Windows and Mac files separate
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.os }}-Game-Build
