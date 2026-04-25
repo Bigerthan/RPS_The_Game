@@ -1,4 +1,4 @@
-name: Build RPS Game (Multi-Platform)
+name: Build RPS Game (Final)
 
 on:
   push:
@@ -22,7 +22,6 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.10'
-        # Cache removed to prevent the "No file matched" error
 
     - name: Install Dependencies
       run: |
@@ -33,9 +32,15 @@ jobs:
       shell: bash
       run: |
         if [ "$RUNNER_OS" == "Windows" ]; then
-          pyinstaller --noconsole --onefile --collect-all mediapipe --add-data "RPS_files;RPS_files" RPS_The_Game.py
+          # Windows uses semicolon (;) for data paths
+          pyinstaller --noconsole --onefile \
+          --collect-all mediapipe \
+          --add-data "RPS_files;RPS_files" RPS_The_Game.py
         else
-          pyinstaller --noconsole --onefile --collect-all mediapipe --add-data "RPS_files:RPS_files" RPS_The_Game.py
+          # Mac uses colon (:) for data paths
+          pyinstaller --noconsole --onefile \
+          --collect-all mediapipe \
+          --add-data "RPS_files:RPS_files" RPS_The_Game.py
         fi
 
     - name: Upload Artifacts
