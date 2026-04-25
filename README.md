@@ -1,6 +1,6 @@
 # ✊✌️✋ /-\ Rock Paper Scissors The Game /-\ ✋✌️✊
 
-### Welcome! This is an Rock Paper Scissors game built in Python. This project utilizes OpenCV and Mediapipe for real-time hand gesture recognition. Get your camera ready to play!
+### Welcome! This is a Rock Paper Scissors game built in Python. This project utilizes OpenCV and Mediapipe for real-time hand gesture recognition. Get your camera ready to play!
 
 ---
 ## [+] Download The Game [+]
