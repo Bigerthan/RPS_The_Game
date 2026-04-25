@@ -1,0 +1,19 @@
+LICENSE & TERMS OF USE
+
+Copyright (c) 2024 Ertan GÜLERDEM 
+
+All rights reserved.
+
+This project and its source code are provided for educational and personal viewing purposes only. Permission is granted to view, download, and study the source code for non-commercial purposes.
+
+You may NOT:
+
+Sell, sublicense, or commercially use this project or any part of it.
+
+Redistribute the source code or modified versions.
+
+Use this project in any commercial product or service.
+
+Any use beyond these terms requires explicit written permission from the author.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED.
