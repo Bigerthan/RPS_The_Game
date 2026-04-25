@@ -5,6 +5,10 @@
 ---
 ## [+] Download The Game [+]
 Download the zip file from the links below and the Game should be there!
+
+**NOTE:** You can get a security warning when you try to open the Game but this is a standard procedure for independent software. The 'SmartScreen' warning appears because the executable is not yet digitally signed. You can safely bypass this by clicking 'More info' followed by 'Run anyway'."
+
+
 ### [-] Windows [-]
 - [RPS_The_Game.exe](https://github.com/Bigerthan/RPS_The_Game/actions/runs/24932346770/artifacts/6640284283)
 
