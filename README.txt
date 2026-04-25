@@ -49,3 +49,5 @@ Welcome!
         Trumpet_lost_sfx: GamingSoundEffects (Youtube) (https://www.youtube.com/watch?v=LukyMYp2noo)
 
         Trumpet_won_sfx: BenKirb (https://pixabay.com/sound-effects/musical-fanfare-1-276819)
+
+This project is licensed under the terms of the custom license included in the LICENSE.txt file.
