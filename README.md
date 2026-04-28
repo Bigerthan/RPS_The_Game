@@ -9,13 +9,13 @@
 **NOTE:** You can get a security warning when you try to open the Game but this is a standard procedure for independent software. The 'SmartScreen' warning appears because the executable is not yet digitally signed. You can safely bypass this by clicking 'More info' followed by 'Run anyway'."
 
 ### - 🪟 Windows 🪟
-- [RPS_The_Game.exe](https://github.com/Bigerthan/RPS_The_Game/releases/download/v1.0.0/RPS_The_Game_Windows.zip)
+- [RPS_The_Game.exe](https://github.com/Bigerthan/RPS_The_Game/releases/download/v1.1.0/macos-latest-Game-Build.zip)
 
 ### - 🐧 Linux (ubuntu) 🐧
-- [RPS_The_Game.bin](https://github.com/Bigerthan/RPS_The_Game/releases/download/v1.0.0/RPS_The_Game_Linux.zip)
+- [RPS_The_Game.bin](https://github.com/Bigerthan/RPS_The_Game/releases/download/v1.1.0/ubuntu-latest-Game-Build.zip)
 
 ### - 🍎 macOS 🍎
-- [RPS_The_Game.app](https://github.com/Bigerthan/RPS_The_Game/releases/download/v1.0.0/RPS_The_Game_macOS.zip)
+- [RPS_The_Game.app](https://github.com/Bigerthan/RPS_The_Game/releases/download/v1.1.0/macos-latest-Game-Build.zip)
 
 ---
 ## 🎮 HOW TO PLAY? 🎮
