@@ -20,7 +20,7 @@ Download the zip file from the links below and the Game should be there!
 
 ---
 ## ⚙️ Updates ⚙️
-### 28.04.2006
+### 28.04.2026
 - Camera switching feature is added. Press E or Q key to switch between your cameras. This feature has 5 seconds cooldown.
 - Camera error display is added.
 - Round end countdown is increased to 5 seconds. (3 -> 5)
