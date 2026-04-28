@@ -8,6 +8,7 @@
 
 **NOTE:** You can get a security warning when you try to open the Game but this is a standard procedure for independent software. The 'SmartScreen' warning appears because the executable is not yet digitally signed. You can safely bypass this by clicking 'More info' followed by 'Run anyway'."
 
+### Current Game Version: v1.1.0
 ### - 🪟 Windows 🪟
 - [RPS_The_Game.exe](https://github.com/Bigerthan/RPS_The_Game/releases/download/v1.1.0/macos-latest-Game-Build.zip)
 
