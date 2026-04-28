@@ -1,10 +1,10 @@
 # ✊✌️✋ /-\ Rock Paper Scissors The Game /-\ ✋✌️✊
 
-### Welcome! This is a Rock Paper Scissors game built in Python. This project utilizes OpenCV and Mediapipe for real-time hand gesture recognition. Get your camera ready to play!
+### Welcome! This is a Rock, Paper, Scissors game built in Python using OpenCV and Mediapipe for real-time hand gesture recognition. Get your camera ready to play!
 
 ---
 ## ⬇️ Download The Game ⬇️
-### Download the zip file from the links below and the Game should be there!
+### Download the ZIP file for your OS below!
 
 **NOTE:** You can get a security warning when you try to open the Game but this is a standard procedure for independent software. The 'SmartScreen' warning appears because the executable is not yet digitally signed. You can safely bypass this by clicking 'More info' followed by 'Run anyway'."
 
@@ -26,6 +26,7 @@
 - To select the number of rounds that you are going to play (or to leave just quit), show the corresponding hand gesture to the camera for 5 seconds.
 - The rest is casual rock paper scissors!
   - Note: you can make the "Stop" gesture to end the game.
+
 ### Master Key Controls:
 - **[ESC] – Exit:** Closes the game immediately.
 
@@ -38,10 +39,10 @@
 ---
 ## ⚙️ Updates ⚙️
 ### 28.04.2026
-- Camera switching feature is added. Press E or Q key to switch between your cameras. This feature has 5 seconds cooldown.
-- Camera error display is added.
-- Round end countdown is increased to 5 seconds. (3 -> 5)
-- Code structure is slightly changed.
+- **Camera Switching:** Camera switching feature is added. Press **E** or **Q** key to switch between your cameras (5-second cooldown).
+- **Error Handling:** Camera error display is added.
+- **Timer Update:** Round end countdown is increased to 5 seconds. (3 -> 5)
+- **Optimization:** Code structure is slightly changed.
 
 ---
 ## 📖 Language & Libraries 📖
@@ -70,7 +71,7 @@
 
 ### 🎵 Music & Sound Effects 🎵
 
-**(!) NOTE (!): I have edited some sounds, but the originals are credited below.**
+*(NOTE: Original sounds have been edited for the game; credits for the originals are below)*
 
 - The background music: [HitsLab](https://pixabay.com/music/video-games-retro-arcade-game-music-396890)
 
