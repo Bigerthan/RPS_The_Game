@@ -41,7 +41,10 @@ class RPS_OpenCV():
         self.Total_rounds = 10
         self.Bot_score = 0
         self.Player_score = 0
-
+        
+        self.switch_camera_previous_time = time.time()
+        self.switch_camera_cooldown = 3
+        self.camera_list_index = 0
         self.Camera_width = 640
         self.Camera_height = 480
 
@@ -57,8 +60,10 @@ class RPS_OpenCV():
         self.Time_countdown_TUTORIAL = 5
         self.Time_countdown_CHOOSING_ROUNDS = 5
         self.Time_countdown_PLAYING = 5
-        self.Time_countdown_ROUND_END = 3
+        self.Time_countdown_ROUND_END = 5
         self.Time_countdown_GAME_END = 5
+
+        self.key_pressed = False
 
         self.FPS_previous_time = time.time()
 
@@ -74,233 +79,7 @@ class RPS_OpenCV():
         self.Did_transition_timer_set = False
         self.Time_stop = False
 
-    def Calculate_degree(self, x1, y1, x2, y2):
-        delta_x , delta_y = x1-x2 , y1-y2
-        try:
-            angle_deg = math.degrees(math.atan2(delta_y,delta_x))
-        except ZeroDivisionError:
-            if delta_y > 0:
-                angle_deg = 90
-            else:
-                angle_deg = 270
-        return angle_deg
-
-    def Set_starting_settings(self):
-        #---------- Camera ----------
-        self.cap = cv2.VideoCapture(0)
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.Camera_width)
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.Camera_height)
-
-        #---------- Window ----------
-        cv2.namedWindow("Rock Paper Scissor", cv2.WINDOW_NORMAL)
-        cv2.setWindowProperty("Rock Paper Scissor", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-        self.master_canvas = np.full((1080, 1920, 3), 50, dtype=np.uint8)
-
-        #---------- Mediapipe ----------
-        self.mp_Hands = mp_hands
-        self.mp_Draw = mp_drawing
-
-    def Read_images(self):
-        Hand_img_size_T_CR = (344,344) #Tutorial, Choosing_rounds
-        Hand_img_size_P_RE_GE = (300,300) #Playing, Round_end, Game_end
-        Icon_img_size = (93,93)
-        Small_moai_Icon_img_size = (70,70)
-        #Since the bot images is already have correct size didn't add Bot_img_size = (640,480)
-        self.Image_Dict = {
-            #Backgrounds
-            "BG_Tutorial_img": cv2.imread(resource_path("RPS_files/Images/Backgrounds/BG_Tutorial.png")),
-            "BG_Round_Selection_img": cv2.imread(resource_path("RPS_files/Images/Backgrounds/BG_Round_Selection.png")),
-            "BG_Playing_img": cv2.imread(resource_path("RPS_files/Images/Backgrounds/BG_Playing.png")),
-            "BG_Round_end_img": cv2.imread(resource_path("RPS_files/Images/Backgrounds/BG_Round_end.png")),
-            "BG_Game_end_img": cv2.imread(resource_path("RPS_files/Images/Backgrounds/BG_Game_end.png")),
-            "BG_Game_end_blue_img": cv2.imread(resource_path("RPS_files/Images/Backgrounds/BG_Game_end_blue.png")),
-            "BG_Game_end_red_img": cv2.imread(resource_path("RPS_files/Images/Backgrounds/BG_Game_end_red.png")),
-
-            #Bot_faces
-            "Bot_smile_img": cv2.imread(resource_path("RPS_files/Images/Bot_faces/bot_smile.png")),
-            "Bot_won_img": cv2.imread(resource_path("RPS_files/Images/Bot_faces/bot_won.png")),
-            "Bot_lost_img": cv2.imread(resource_path("RPS_files/Images/Bot_faces/bot_lost.png")),
-            "Bot_draw_img": cv2.imread(resource_path("RPS_files/Images/Bot_faces/bot_draw.png")),
-
-            #Hand_gestures //// Tutorial, Choosing_rounds
-            "Rock_img": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/rock.png")), Hand_img_size_T_CR),
-            "Paper_img": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/paper.png")), Hand_img_size_T_CR),
-            "Scissor_img": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/scissor.png")), Hand_img_size_T_CR),
-            "Waiting..._img": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/waiting.png")), Hand_img_size_T_CR),
-            "OK_img": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/thumbs_up.png")), Hand_img_size_T_CR),
-            "Stop_img": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/stop.png")), Hand_img_size_T_CR),
-
-            "One_img": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/1.png")), Hand_img_size_T_CR),
-            "Two_img": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/2.png")), Hand_img_size_T_CR),
-            "Three_img": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/3.png")), Hand_img_size_T_CR),
-            "Four_img": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/4.png")), Hand_img_size_T_CR),
-
-            #Hand_gestures_small //// Playing, Round_end, Game_end
-            "Rock_img_small": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/rock.png")), Hand_img_size_P_RE_GE),
-            "Paper_img_small": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/paper.png")), Hand_img_size_P_RE_GE),
-            "Scissor_img_small": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/scissor.png")), Hand_img_size_P_RE_GE),
-            "Waiting..._img_small": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/waiting.png")), Hand_img_size_P_RE_GE),
-            "OK_img_small": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/thumbs_up.png")), Hand_img_size_P_RE_GE),
-            "Stop_img_small": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/stop.png")), Hand_img_size_P_RE_GE),
-
-            "One_img_small": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/1.png")), Hand_img_size_P_RE_GE),
-            "Two_img_small": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/2.png")), Hand_img_size_P_RE_GE),
-            "Three_img_small": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/3.png")), Hand_img_size_P_RE_GE),
-            "Four_img_small": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/4.png")), Hand_img_size_P_RE_GE),
-
-            #Icons
-            "icon_Moai_img_small": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Icons/icon_Moai.png")), Small_moai_Icon_img_size),
-            "icon_Moai_img": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Icons/icon_Moai.png")), Icon_img_size),
-            "icon_Crown_img": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Icons/icon_Crown.png")), Icon_img_size),
-            "icon_Shield_blue": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Icons/icon_Shield_blue.png")), Icon_img_size),
-            "icon_Shield_red": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Icons/icon_Shield_red.png")), Icon_img_size),
-            "icon_Sword_blue": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Icons/icon_Sword_blue.png")), Icon_img_size),
-            "icon_Sword_red": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Icons/icon_Sword_red.png")), Icon_img_size)}
-
-        missing_images = [name for name, value in self.Image_Dict.items() if value is None]
-        if missing_images: print(f"ERROR: Could not find these images: {', '.join(missing_images)}") ; exit()
-
-    def Load_sounds(self):
-        pygame.mixer.init()
-        try:
-            self.Time_sfx_1 = pygame.mixer.Sound(resource_path("RPS_files/Sound_effects/Time_sfx_1.wav"))
-            self.Time_sfx_2 = pygame.mixer.Sound(resource_path("RPS_files/Sound_effects/Time_sfx_2.wav"))
-            self.Transition_sfx = pygame.mixer.Sound(resource_path("RPS_files/Sound_effects/Transition_sfx.wav"))
-            self.Selection_sfx = pygame.mixer.Sound(resource_path("RPS_files/Sound_effects/Selection_sfx.wav"))
-            self.Trumpet_lost_sfx = pygame.mixer.Sound(resource_path("RPS_files/Sound_effects/Trumpet_lost_sfx.wav"))
-            self.Trumpet_won_sfx = pygame.mixer.Sound(resource_path("RPS_files/Sound_effects/Trumpet_won_sfx.wav"))
-            self.Trumpet_draw_sfx = pygame.mixer.Sound(resource_path("RPS_files/Sound_effects/Trumpet_draw_sfx.wav"))
-            self.Rock_sfx = pygame.mixer.Sound(resource_path("RPS_files/Sound_effects/Rock_sfx.wav"))
-            self.Paper_sfx = pygame.mixer.Sound(resource_path("RPS_files/Sound_effects/Paper_sfx.wav"))
-            self.Scissor_sfx = pygame.mixer.Sound(resource_path("RPS_files/Sound_effects/Scissor_sfx.wav"))
-            self.Draw_sword_sfx = pygame.mixer.Sound(resource_path("RPS_files/Sound_effects/Draw_sword_sfx.wav"))
-            pygame.mixer.music.load(resource_path("RPS_files/Sound_effects/Background_music.mp3"))
-
-            self.Rock_sfx.set_volume(0.7)
-            self.Paper_sfx.set_volume(0.75)
-            self.Scissor_sfx.set_volume(0.9)
-            self.Draw_sword_sfx.set_volume(0.85)
-
-            self.Trumpet_lost_sfx.set_volume(0.8)
-            self.Trumpet_won_sfx.set_volume(0.8)
-            self.Trumpet_draw_sfx.set_volume(0.8)
-            
-        except Exception as error:
-            print(f"An error has been occured while loading sound effects: {error}")
-        
-        self.Time_sfx_loop_counter = 1
-        self.ROUND_END_sfx_played = False
-        self.GAME_END_sfx_played = False
-        self.Dominant_sfxs = [self.Trumpet_lost_sfx, self.Trumpet_won_sfx, self.Trumpet_draw_sfx, self.Rock_sfx, self.Paper_sfx , self.Scissor_sfx, self.Draw_sword_sfx]
-
-    def Get_hand_rotation(self, Lm_coords):
-        abs_x_diff_5_17 = abs(Lm_coords[5][0] - Lm_coords[17][0])
-        abs_y_diff_5_17 = abs(Lm_coords[5][1] - Lm_coords[17][1])
-        if abs_x_diff_5_17 >= abs_y_diff_5_17: Hand_rotation = "Horizontal"
-        else: Hand_rotation = "Vertical"
-        return Hand_rotation
-
-    def Get_finger_states(self, Hand_type, Hand_rotation, Lm_coords): # + , TRUE = open,  - , FALSE = close
-        if Hand_rotation == "Horizontal":
-            index_finger = Lm_coords[6][1] - Lm_coords[8][1]
-            middle_finger = Lm_coords[10][1] - Lm_coords[12][1]
-            ring_finger = Lm_coords[14][1] - Lm_coords[16][1]
-            pinky_finger = Lm_coords[18][1] - Lm_coords[20][1]
-            if Hand_type == "Right": thumb_finger = Lm_coords[2][0] - Lm_coords[4][0]
-            elif Hand_type == "Left": thumb_finger = Lm_coords[4][0] - Lm_coords[2][0]
-
-        elif Hand_rotation == "Vertical":
-            if Hand_type == "Right": 
-                thumb_finger = Lm_coords[2][1] - Lm_coords[4][1]
-                index_finger = Lm_coords[6][0] - Lm_coords[8][0]
-                middle_finger = Lm_coords[10][0] - Lm_coords[12][0]
-                ring_finger = Lm_coords[14][0] - Lm_coords[16][0]
-                pinky_finger = Lm_coords[18][0] - Lm_coords[20][0]
-            elif Hand_type == "Left":
-                thumb_finger = Lm_coords[2][1] - Lm_coords[4][1]
-                index_finger = -(Lm_coords[6][0] - Lm_coords[8][0])
-                middle_finger = -(Lm_coords[10][0] - Lm_coords[12][0])
-                ring_finger = -(Lm_coords[14][0] - Lm_coords[16][0])
-                pinky_finger = -(Lm_coords[18][0] - Lm_coords[20][0])
-
-        Finger_list = [thumb_finger, index_finger, middle_finger, ring_finger, pinky_finger]
-        Finger_data = {}
-        for id, value in enumerate(Finger_list):
-            if value < 0: Finger_data[id] = False
-            else: Finger_data[id] = True
-        return Finger_data
-
-    def Chooseing_hand_state(self, Finger_data): #True = finger is opened // False = finger is closed
-        Hand_state_name = "Waiting..."
-        four_finger = [Finger_data[1], Finger_data[2], Finger_data[3], Finger_data[4]] #fingers except thumb
-
-        if Finger_data[0] == True:
-            if all(four_finger): Hand_state_name = "Paper"
-            elif not any(four_finger): Hand_state_name = "OK"
-
-        elif Finger_data[0] == False:
-            if four_finger == [False, False, False, False]: Hand_state_name = "Rock"
-            elif four_finger == [True, False, False, False]: Hand_state_name = "One"
-            elif four_finger == [True, True, False, False]: Hand_state_name = "Scissor"
-            elif four_finger == [True, True, True, False]: Hand_state_name = "Three"
-            elif four_finger == [True, True, True, True]: Hand_state_name = "Four"
-            
-        return Hand_state_name
-
-    def Get_player_hand_state(self, Right_lm_coords, Left_lm_coords):
-        if Right_lm_coords:
-            Hand_rotation = self.Get_hand_rotation(Right_lm_coords)
-            Finger_data = self.Get_finger_states("Right", Hand_rotation, Right_lm_coords)
-
-            degree_0_9 = self.Calculate_degree(Right_lm_coords[0][0], Right_lm_coords[0][1], Right_lm_coords[9][0], Right_lm_coords[9][1])
-            degree_9_12 = self.Calculate_degree(Right_lm_coords[9][0], Right_lm_coords[9][1], Right_lm_coords[12][0], Right_lm_coords[12][1])
-            
-            if 60<degree_0_9<100 and -15<degree_9_12<15:
-                Hand_state_name ="Stop"
-            else:
-                Hand_state_name = self.Chooseing_hand_state(Finger_data)
-
-        elif Left_lm_coords:
-            Hand_rotation = self.Get_hand_rotation(Left_lm_coords)
-            Finger_data = self.Get_finger_states("Left", Hand_rotation, Left_lm_coords)
-
-            degree_0_9 = self.Calculate_degree(Left_lm_coords[0][0], Left_lm_coords[0][1], Left_lm_coords[9][0], Left_lm_coords[9][1])
-            degree_9_12 = self.Calculate_degree(Left_lm_coords[9][0], Left_lm_coords[9][1], Left_lm_coords[12][0], Left_lm_coords[12][1])
-            degree_9_12 = abs(degree_9_12)
-            
-            if 75<degree_0_9<105 and 165<degree_9_12<180:
-                Hand_state_name ="Stop"
-            else:
-                Hand_state_name = self.Chooseing_hand_state(Finger_data)
-
-        return Hand_state_name
-
-    def Set_Hand_states(self, Hands):
-        Camera_RGB = cv2.cvtColor(self.Camera, cv2.COLOR_BGR2RGB)
-        Camera_RGB.flags.writeable = False
-        processed_camera = Hands.process(Camera_RGB)
-        if processed_camera.multi_hand_landmarks:
-            Left_lm_coords, Right_lm_coords = {}, {}
-            for hand_landmarks, hand_info in zip(processed_camera.multi_hand_landmarks, processed_camera.multi_handedness): #This for loop works twice;one for right, one for left.
-                self.mp_Draw.draw_landmarks(self.Camera, hand_landmarks, self.mp_Hands.HAND_CONNECTIONS) #Drawing Landmarks
-
-                hand_type = hand_info.classification[0].label #"Right","Left"
-                if hand_type == "Right":
-                    for id , lm in enumerate(hand_landmarks.landmark):
-                        h, w, c = self.Camera.shape
-                        cx , cy = int(lm.x * w), int(lm.y * h)
-                        Right_lm_coords[id] = (cx, cy)
-                                
-                if hand_type == "Left":
-                    for id , lm in enumerate(hand_landmarks.landmark):
-                        h, w, c = self.Camera.shape
-                        cx , cy = int(lm.x * w), int(lm.y * h)
-                        Left_lm_coords[id] = (cx, cy)
-
-            self.Hand_state_name = self.Get_player_hand_state(Right_lm_coords, Left_lm_coords)
-        else:
-            self.Hand_state_name = "Waiting..."
-
+    # GUI & GAME
     def CHOOSING_ROUNDS_display_selector(self):
         X_gaps = 570
         Y_gaps = 200
@@ -580,191 +359,6 @@ class RPS_OpenCV():
         cv2.putText(self.master_canvas, f"{self.Bot_score}", (int(868-Bot_score_text_lenght/2), 248), cv2.FONT_HERSHEY_PLAIN, 4, (0,0,255), 5)
         cv2.putText(self.master_canvas, f"{self.Player_score}", (int(1057-Player_score_text_lenght/2), 248), cv2.FONT_HERSHEY_PLAIN, 4, (255,0,0), 5)
 
-    def Set_default_veriables(self):
-        if self.Game_state == "TUTORIAL":
-            self.Time_countdown_TUTORIAL = 5
-
-        elif self.Game_state == "CHOOSING_ROUNDS":
-            self.Time_countdown_CHOOSING_ROUNDS = 5
-            self.Current_round = 1
-            self.Player_score = 0
-            self.Bot_score = 0
-            self.Last_selectoin_index = None
-            self.Time_sfx_loop_counter = 1
-
-        if self.Game_state == "PLAYING":
-            self.Time_countdown_PLAYING = 5
-            self.Bot_state = "Smile"
-            self.Bot_Hand_state_name = "Waiting..."
-            self.Score_given = False
-
-        if self.Game_state == "ROUND_END":
-            self.Time_countdown_ROUND_END = 3
-            self.Winner_text = ""
-            self.Round_end_phrase = ""
-            self.Score_given = False
-            self.ROUND_END_sfx_played = False
-
-        if self.Game_state == "GAME_END":
-            self.Time_countdown_GAME_END = 5
-            self.GAME_END_sfx_played = False
-
-    def Time_sound_player(self):
-        try:
-            if self.Time_sfx_loop_counter %2 == 1: self.Time_sfx_1.play()
-            elif self.Time_sfx_loop_counter %2 == 0: self.Time_sfx_2.play()
-            self.Time_sfx_loop_counter += 1
-        except Exception as e:
-            print(f"TIMER SOUND EFFECT ERROR:{e}")
-
-    def Music_volume_adjuster(self):
-        if pygame.mixer.get_busy():
-            for item in self.Dominant_sfxs:
-                if item.get_num_channels() > 0:
-                    pygame.mixer.music.set_volume(0.12)
-        else:
-            pygame.mixer.music.set_volume(0.18)
-
-    def Start_Transition(self, next_game_state):
-        self.Transition_start_time = time.time()
-        self.Transition_next_game_state = next_game_state
-        self.Transition_phase = 1
-        self.Time_stop = True
-    
-    def Do_Transition_Circule(self):
-        if self.Transition_phase > 0:
-            Current_time = time.time()
-            Time_diff =  Current_time - self.Transition_start_time
-            if Time_diff > 0.09:
-                self.Transition_loop_counter += 1
-                self.Transition_start_time = Current_time
-
-            if self.Transition_phase == 1:
-                cv2.circle(self.master_canvas, (960,540), self.Transition_loop_counter*self.Circule_Arrow_Length + (self.Circule_Border_thickness/2).__ceil__() + self.Circule_A_C_gap + self.Circule_A_B_gap, (0,255,0), self.Circule_Border_thickness, cv2.LINE_AA)
-                cv2.circle(self.master_canvas, (960,540), self.Transition_loop_counter*self.Circule_Arrow_Length + self.Circule_A_C_gap + self.Circule_A_B_gap, (0,0,0), -1, cv2.LINE_AA)
-
-                cv2.arrowedLine(self.master_canvas, (960 - self.Circule_A_C_gap - (self.Transition_loop_counter-1)*self.Circule_Arrow_Length, 540),
-                                                    (960 - self.Circule_A_C_gap - self.Transition_loop_counter*self.Circule_Arrow_Length, 540),
-                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #left arrow
-                
-                cv2.arrowedLine(self.master_canvas, (960 + self.Circule_A_C_gap + (self.Transition_loop_counter-1)*self.Circule_Arrow_Length, 540),
-                                                    (960 + self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length, 540),
-                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #right arrow
-                
-                cv2.arrowedLine(self.master_canvas, (960, 540 - self.Circule_A_C_gap - (self.Transition_loop_counter-1)*self.Circule_Arrow_Length),
-                                                    (960, 540 - self.Circule_A_C_gap - self.Transition_loop_counter*self.Circule_Arrow_Length),
-                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #top arrow
-                
-                cv2.arrowedLine(self.master_canvas, (960, 540 + self.Circule_A_C_gap + (self.Transition_loop_counter-1)*self.Circule_Arrow_Length),
-                                                    (960, 540 + self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length),
-                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #bottom arrow
-                
-                cv2.arrowedLine(self.master_canvas, (round(960 - (self.Circule_A_C_gap + (self.Transition_loop_counter-1)*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 - (self.Circule_A_C_gap + (self.Transition_loop_counter-1)*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
-                                                    (round(960 - (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 - (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
-                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #left top arrow
-                
-                cv2.arrowedLine(self.master_canvas, (round(960 + (self.Circule_A_C_gap + (self.Transition_loop_counter-1)*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 - (self.Circule_A_C_gap + (self.Transition_loop_counter-1)*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
-                                                    (round(960 + (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 - (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
-                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #right top arrow
-                
-                cv2.arrowedLine(self.master_canvas, (round(960 + (self.Circule_A_C_gap + (self.Transition_loop_counter-1)*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 + (self.Circule_A_C_gap + (self.Transition_loop_counter-1)*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
-                                                    (round(960 + (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 + (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
-                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #right bottom arrow
-                
-                cv2.arrowedLine(self.master_canvas, (round(960 - (self.Circule_A_C_gap + (self.Transition_loop_counter-1)*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 + (self.Circule_A_C_gap + (self.Transition_loop_counter-1)*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
-                                                    (round(960 - (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 + (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
-                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #left bottom arrow
-
-                if self.Transition_loop_counter == 5 and not self.Transition_sfx_played:
-                    self.Transition_sfx.play()
-                    self.Transition_sfx_played = True
-
-                if self.Transition_loop_counter == 6:
-                    self.Transition_loop_counter = 0
-                    self.Transition_phase = 2
-                    self.Game_state = self.Transition_next_game_state
-            
-            elif self.Transition_phase == 2:
-                cv2.circle(self.master_canvas, (960,540), 960, (0,0,0), (960- self.Transition_loop_counter*self.Circule_Arrow_Length)*2, cv2.LINE_AA)
-                cv2.circle(self.master_canvas, (960,540), self.Transition_loop_counter*self.Circule_Arrow_Length + (self.Circule_Border_thickness/2).__ceil__(), (0,255,0), self.Circule_Border_thickness, cv2.LINE_AA)
-
-                cv2.arrowedLine(self.master_canvas, (960 - self.Circule_A_C_gap*2 - self.Transition_loop_counter*self.Circule_Arrow_Length, 540), 
-                                                    (960 - self.Circule_A_C_gap*2 - (self.Transition_loop_counter+1)*self.Circule_Arrow_Length, 540), 
-                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #left arrow
-                
-                cv2.arrowedLine(self.master_canvas, (960 + self.Circule_A_C_gap*2 + self.Transition_loop_counter*self.Circule_Arrow_Length, 540), 
-                                                    (960 + self.Circule_A_C_gap*2 + (self.Transition_loop_counter+1)*self.Circule_Arrow_Length, 540), 
-                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #right arrow
-                
-                cv2.arrowedLine(self.master_canvas, (960, 540 - self.Circule_A_C_gap*2 - self.Transition_loop_counter*self.Circule_Arrow_Length), 
-                                                    (960, 540 - self.Circule_A_C_gap*2 - (self.Transition_loop_counter+1)*self.Circule_Arrow_Length), 
-                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #top arrow
-                
-                cv2.arrowedLine(self.master_canvas, (960, 540 + self.Circule_A_C_gap*2 + self.Transition_loop_counter*self.Circule_Arrow_Length), 
-                                                    (960, 540 + self.Circule_A_C_gap*2 + (self.Transition_loop_counter+1)*self.Circule_Arrow_Length), 
-                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #bottom arrow
-                
-                cv2.arrowedLine(self.master_canvas, (round(960 - (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 - (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
-                                                    (round(960 - (self.Circule_A_C_gap + (self.Transition_loop_counter+1)*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 - (self.Circule_A_C_gap + (self.Transition_loop_counter+1)*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
-                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #left top arrow
-                
-                cv2.arrowedLine(self.master_canvas, (round(960 + (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 - (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
-                                                    (round(960 + (self.Circule_A_C_gap + (self.Transition_loop_counter+1)*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 - (self.Circule_A_C_gap + (self.Transition_loop_counter+1)*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
-                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #right top arrow
-                
-                cv2.arrowedLine(self.master_canvas, (round(960 + (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 + (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
-                                                    (round(960 + (self.Circule_A_C_gap + (self.Transition_loop_counter+1)*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 + (self.Circule_A_C_gap + (self.Transition_loop_counter+1)*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
-                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #right bottom arrow
-                
-                cv2.arrowedLine(self.master_canvas, (round(960 - (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 + (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
-                                                    (round(960 - (self.Circule_A_C_gap + (self.Transition_loop_counter+1)*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 + (self.Circule_A_C_gap + (self.Transition_loop_counter+1)*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
-                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #left bottom arrow
-
-                if self.Transition_loop_counter == 6:
-                    self.Transition_loop_counter = 1
-                    self.Transition_phase = 0
-                    self.Time_stop = False
-                    self.Transition_sfx_played = False
-
-    def Display_FPS(self):
-        current_time = time.time()
-        time_difference = current_time - self.FPS_previous_time
-        
-        if time_difference > 0: fps = 1 / time_difference
-        else: fps = 9999
-            
-        self.FPS_previous_time = current_time
-
-        h, w, c = self.Camera.shape
-        text_size = cv2.getTextSize(f"FPS: {round(fps)}", cv2.FONT_HERSHEY_DUPLEX, 0.75, 2)[0]
-        cv2.rectangle(self.Camera, (w-110, 0), (w, 30), (0,0,0), -1) 
-        cv2.putText(self.Camera, f"FPS: {round(fps)}", (w-55-round(text_size[0]/2), 15+round(text_size[1]/2)), cv2.FONT_HERSHEY_DUPLEX, 0.75, (255,255,255), 2)
-
-    def GAME_STATE_FUNC(self, display_fps=True):
-        if not self.Background_music_started:
-            pygame.mixer.music.set_volume(0.25)
-            pygame.mixer.music.play(-1)
-            self.Background_music_started = True
-
-        if self.Last_frames_game_state != self.Game_state:
-            self.Set_default_veriables()
-            self.Last_frames_game_state = self.Game_state
-
-        if self.Game_state == "TUTORIAL" or self.Game_state == "CHOOSING_ROUNDS":
-            self.Camera = cv2.resize(self.Camera, (720, 540))
-
-        if display_fps:
-            self.Display_FPS() 
-
-        if self.Time_stop:
-            self.Previous_time = time.time()
-
-        if self.Game_state == "TUTORIAL": self.TUTORIAL()
-        elif self.Game_state == "CHOOSING_ROUNDS": self.CHOOSING_ROUNDS()
-        elif self.Game_state == "PLAYING": self.PLAYING()
-        elif self.Game_state == "ROUND_END": self.ROUND_END()
-        elif self.Game_state == "GAME_END": self.GAME_END()
-
     def TUTORIAL(self):
         self.master_canvas[0:1080, 0:1920] = self.Image_Dict["BG_Tutorial_img"].copy()
         self.master_canvas[28:568, 1172:1892] = self.Camera
@@ -910,19 +504,472 @@ class RPS_OpenCV():
             else:
                 self.Time_countdown_GAME_END -= 1
             self.Previous_time = Current_time
+
+    # MEDIAPIPE & HAND RECOGNITION
+    def Calculate_degree(self, x1, y1, x2, y2):
+        delta_x , delta_y = x1-x2 , y1-y2
+        try:
+            angle_deg = math.degrees(math.atan2(delta_y,delta_x))
+        except ZeroDivisionError:
+            if delta_y > 0:
+                angle_deg = 90
+            else:
+                angle_deg = 270
+        return angle_deg
+
+    def Get_hand_rotation(self, Lm_coords):
+        abs_x_diff_5_17 = abs(Lm_coords[5][0] - Lm_coords[17][0])
+        abs_y_diff_5_17 = abs(Lm_coords[5][1] - Lm_coords[17][1])
+        if abs_x_diff_5_17 >= abs_y_diff_5_17: Hand_rotation = "Horizontal"
+        else: Hand_rotation = "Vertical"
+        return Hand_rotation
+
+    def Get_finger_states(self, Hand_type, Hand_rotation, Lm_coords): # + , TRUE = open,  - , FALSE = close
+        if Hand_rotation == "Horizontal":
+            index_finger = Lm_coords[6][1] - Lm_coords[8][1]
+            middle_finger = Lm_coords[10][1] - Lm_coords[12][1]
+            ring_finger = Lm_coords[14][1] - Lm_coords[16][1]
+            pinky_finger = Lm_coords[18][1] - Lm_coords[20][1]
+            if Hand_type == "Right": thumb_finger = Lm_coords[2][0] - Lm_coords[4][0]
+            elif Hand_type == "Left": thumb_finger = Lm_coords[4][0] - Lm_coords[2][0]
+
+        elif Hand_rotation == "Vertical":
+            if Hand_type == "Right": 
+                thumb_finger = Lm_coords[2][1] - Lm_coords[4][1]
+                index_finger = Lm_coords[6][0] - Lm_coords[8][0]
+                middle_finger = Lm_coords[10][0] - Lm_coords[12][0]
+                ring_finger = Lm_coords[14][0] - Lm_coords[16][0]
+                pinky_finger = Lm_coords[18][0] - Lm_coords[20][0]
+            elif Hand_type == "Left":
+                thumb_finger = Lm_coords[2][1] - Lm_coords[4][1]
+                index_finger = -(Lm_coords[6][0] - Lm_coords[8][0])
+                middle_finger = -(Lm_coords[10][0] - Lm_coords[12][0])
+                ring_finger = -(Lm_coords[14][0] - Lm_coords[16][0])
+                pinky_finger = -(Lm_coords[18][0] - Lm_coords[20][0])
+
+        Finger_list = [thumb_finger, index_finger, middle_finger, ring_finger, pinky_finger]
+        Finger_data = {}
+        for id, value in enumerate(Finger_list):
+            if value < 0: Finger_data[id] = False
+            else: Finger_data[id] = True
+        return Finger_data
+
+    def Chooseing_hand_state(self, Finger_data): #True = finger is opened // False = finger is closed
+        Hand_state_name = "Waiting..."
+        four_finger = [Finger_data[1], Finger_data[2], Finger_data[3], Finger_data[4]] #fingers except thumb
+
+        if Finger_data[0] == True:
+            if all(four_finger): Hand_state_name = "Paper"
+            elif not any(four_finger): Hand_state_name = "OK"
+
+        elif Finger_data[0] == False:
+            if four_finger == [False, False, False, False]: Hand_state_name = "Rock"
+            elif four_finger == [True, False, False, False]: Hand_state_name = "One"
+            elif four_finger == [True, True, False, False]: Hand_state_name = "Scissor"
+            elif four_finger == [True, True, True, False]: Hand_state_name = "Three"
+            elif four_finger == [True, True, True, True]: Hand_state_name = "Four"
             
+        return Hand_state_name
+
+    def Get_player_hand_state(self, Right_lm_coords, Left_lm_coords):
+        if Right_lm_coords:
+            Hand_rotation = self.Get_hand_rotation(Right_lm_coords)
+            Finger_data = self.Get_finger_states("Right", Hand_rotation, Right_lm_coords)
+
+            degree_0_9 = self.Calculate_degree(Right_lm_coords[0][0], Right_lm_coords[0][1], Right_lm_coords[9][0], Right_lm_coords[9][1])
+            degree_9_12 = self.Calculate_degree(Right_lm_coords[9][0], Right_lm_coords[9][1], Right_lm_coords[12][0], Right_lm_coords[12][1])
+            
+            if 60<degree_0_9<100 and -15<degree_9_12<15:
+                Hand_state_name ="Stop"
+            else:
+                Hand_state_name = self.Chooseing_hand_state(Finger_data)
+
+        elif Left_lm_coords:
+            Hand_rotation = self.Get_hand_rotation(Left_lm_coords)
+            Finger_data = self.Get_finger_states("Left", Hand_rotation, Left_lm_coords)
+
+            degree_0_9 = self.Calculate_degree(Left_lm_coords[0][0], Left_lm_coords[0][1], Left_lm_coords[9][0], Left_lm_coords[9][1])
+            degree_9_12 = self.Calculate_degree(Left_lm_coords[9][0], Left_lm_coords[9][1], Left_lm_coords[12][0], Left_lm_coords[12][1])
+            degree_9_12 = abs(degree_9_12)
+            
+            if 75<degree_0_9<105 and 165<degree_9_12<180:
+                Hand_state_name ="Stop"
+            else:
+                Hand_state_name = self.Chooseing_hand_state(Finger_data)
+
+        return Hand_state_name
+
+    def Set_Hand_states(self, Hands):
+        Camera_RGB = cv2.cvtColor(self.Camera, cv2.COLOR_BGR2RGB)
+        Camera_RGB.flags.writeable = False
+        processed_camera = Hands.process(Camera_RGB)
+        if processed_camera.multi_hand_landmarks:
+            Left_lm_coords, Right_lm_coords = {}, {}
+            for hand_landmarks, hand_info in zip(processed_camera.multi_hand_landmarks, processed_camera.multi_handedness): #This for loop works twice;one for right, one for left.
+                self.mp_Draw.draw_landmarks(self.Camera, hand_landmarks, self.mp_Hands.HAND_CONNECTIONS) #Drawing Landmarks
+
+                hand_type = hand_info.classification[0].label #"Right","Left"
+                if hand_type == "Right":
+                    for id , lm in enumerate(hand_landmarks.landmark):
+                        h, w, c = self.Camera.shape
+                        cx , cy = int(lm.x * w), int(lm.y * h)
+                        Right_lm_coords[id] = (cx, cy)
+                                
+                if hand_type == "Left":
+                    for id , lm in enumerate(hand_landmarks.landmark):
+                        h, w, c = self.Camera.shape
+                        cx , cy = int(lm.x * w), int(lm.y * h)
+                        Left_lm_coords[id] = (cx, cy)
+
+            self.Hand_state_name = self.Get_player_hand_state(Right_lm_coords, Left_lm_coords)
+        else:
+            self.Hand_state_name = "Waiting..."
+
+    # OPENCV & CAMERA
+    def Get_available_cameras(self, maximum_index=10):
+        a_time = time.time()
+        self.available_camera_list = []
+        index = 0
+        while index <= maximum_index:
+            cap = cv2.VideoCapture(index)
+            if cap.isOpened():
+                self.available_camera_list.append(index)
+                cap.release()
+            index += 1
+
+    def Switch_camera(self, delta):
+        if not self.available_camera_list:
+            self.Camera = np.zeros((self.Camera_height, self.Camera_width, 3), dtype=np.uint8)
+            camera_error_text = "No camera detected! Please plug in a camera and restart the game."
+            camera_error_text_size = cv2.getTextSize(camera_error_text, cv2.FONT_HERSHEY_SIMPLEX, 0.55, 2)[0]
+            cv2.putText(self.Camera, camera_error_text,
+                        ((self.Camera_width-camera_error_text_size[0])//2, (self.Camera_height+camera_error_text_size[1])//2),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255,255,255), 2, cv2.LINE_AA)
+        
+        self.cap.release()
+        
+        self.camera_list_index = (self.camera_list_index + delta) % len(self.available_camera_list)
+        self.camera_index = self.available_camera_list[self.camera_list_index]
+
+        self.cap = cv2.VideoCapture(self.camera_index)
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.Camera_width)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.Camera_height)
+
+    # IMAGES & SOUND EFFECTS
+    def Read_images(self):
+        Hand_img_size_T_CR = (344,344) #Tutorial, Choosing_rounds
+        Hand_img_size_P_RE_GE = (300,300) #Playing, Round_end, Game_end
+        Icon_img_size = (93,93)
+        Small_moai_Icon_img_size = (70,70)
+        #Since the bot images is already have correct size didn't add Bot_img_size = (640,480)
+        self.Image_Dict = {
+            #Backgrounds
+            "BG_Tutorial_img": cv2.imread(resource_path("RPS_files/Images/Backgrounds/BG_Tutorial.png")),
+            "BG_Round_Selection_img": cv2.imread(resource_path("RPS_files/Images/Backgrounds/BG_Round_Selection.png")),
+            "BG_Playing_img": cv2.imread(resource_path("RPS_files/Images/Backgrounds/BG_Playing.png")),
+            "BG_Round_end_img": cv2.imread(resource_path("RPS_files/Images/Backgrounds/BG_Round_end.png")),
+            "BG_Game_end_img": cv2.imread(resource_path("RPS_files/Images/Backgrounds/BG_Game_end.png")),
+            "BG_Game_end_blue_img": cv2.imread(resource_path("RPS_files/Images/Backgrounds/BG_Game_end_blue.png")),
+            "BG_Game_end_red_img": cv2.imread(resource_path("RPS_files/Images/Backgrounds/BG_Game_end_red.png")),
+
+            #Bot_faces
+            "Bot_smile_img": cv2.imread(resource_path("RPS_files/Images/Bot_faces/bot_smile.png")),
+            "Bot_won_img": cv2.imread(resource_path("RPS_files/Images/Bot_faces/bot_won.png")),
+            "Bot_lost_img": cv2.imread(resource_path("RPS_files/Images/Bot_faces/bot_lost.png")),
+            "Bot_draw_img": cv2.imread(resource_path("RPS_files/Images/Bot_faces/bot_draw.png")),
+
+            #Hand_gestures //// Tutorial, Choosing_rounds
+            "Rock_img": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/rock.png")), Hand_img_size_T_CR),
+            "Paper_img": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/paper.png")), Hand_img_size_T_CR),
+            "Scissor_img": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/scissor.png")), Hand_img_size_T_CR),
+            "Waiting..._img": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/waiting.png")), Hand_img_size_T_CR),
+            "OK_img": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/thumbs_up.png")), Hand_img_size_T_CR),
+            "Stop_img": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/stop.png")), Hand_img_size_T_CR),
+
+            "One_img": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/1.png")), Hand_img_size_T_CR),
+            "Two_img": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/2.png")), Hand_img_size_T_CR),
+            "Three_img": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/3.png")), Hand_img_size_T_CR),
+            "Four_img": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/4.png")), Hand_img_size_T_CR),
+
+            #Hand_gestures_small //// Playing, Round_end, Game_end
+            "Rock_img_small": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/rock.png")), Hand_img_size_P_RE_GE),
+            "Paper_img_small": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/paper.png")), Hand_img_size_P_RE_GE),
+            "Scissor_img_small": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/scissor.png")), Hand_img_size_P_RE_GE),
+            "Waiting..._img_small": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/waiting.png")), Hand_img_size_P_RE_GE),
+            "OK_img_small": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/thumbs_up.png")), Hand_img_size_P_RE_GE),
+            "Stop_img_small": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/stop.png")), Hand_img_size_P_RE_GE),
+
+            "One_img_small": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/1.png")), Hand_img_size_P_RE_GE),
+            "Two_img_small": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/2.png")), Hand_img_size_P_RE_GE),
+            "Three_img_small": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/3.png")), Hand_img_size_P_RE_GE),
+            "Four_img_small": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Hand_gestures/4.png")), Hand_img_size_P_RE_GE),
+
+            #Icons
+            "icon_Moai_img_small": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Icons/icon_Moai.png")), Small_moai_Icon_img_size),
+            "icon_Moai_img": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Icons/icon_Moai.png")), Icon_img_size),
+            "icon_Crown_img": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Icons/icon_Crown.png")), Icon_img_size),
+            "icon_Shield_blue": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Icons/icon_Shield_blue.png")), Icon_img_size),
+            "icon_Shield_red": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Icons/icon_Shield_red.png")), Icon_img_size),
+            "icon_Sword_blue": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Icons/icon_Sword_blue.png")), Icon_img_size),
+            "icon_Sword_red": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Icons/icon_Sword_red.png")), Icon_img_size)}
+
+        missing_images = [name for name, value in self.Image_Dict.items() if value is None]
+        if missing_images: print(f"ERROR: Could not find these images: {', '.join(missing_images)}") ; exit()
+
+    def Load_sounds(self):
+        pygame.mixer.init()
+        try:
+            self.Time_sfx_1 = pygame.mixer.Sound(resource_path("RPS_files/Sound_effects/Time_sfx_1.wav"))
+            self.Time_sfx_2 = pygame.mixer.Sound(resource_path("RPS_files/Sound_effects/Time_sfx_2.wav"))
+            self.Transition_sfx = pygame.mixer.Sound(resource_path("RPS_files/Sound_effects/Transition_sfx.wav"))
+            self.Selection_sfx = pygame.mixer.Sound(resource_path("RPS_files/Sound_effects/Selection_sfx.wav"))
+            self.Trumpet_lost_sfx = pygame.mixer.Sound(resource_path("RPS_files/Sound_effects/Trumpet_lost_sfx.wav"))
+            self.Trumpet_won_sfx = pygame.mixer.Sound(resource_path("RPS_files/Sound_effects/Trumpet_won_sfx.wav"))
+            self.Trumpet_draw_sfx = pygame.mixer.Sound(resource_path("RPS_files/Sound_effects/Trumpet_draw_sfx.wav"))
+            self.Rock_sfx = pygame.mixer.Sound(resource_path("RPS_files/Sound_effects/Rock_sfx.wav"))
+            self.Paper_sfx = pygame.mixer.Sound(resource_path("RPS_files/Sound_effects/Paper_sfx.wav"))
+            self.Scissor_sfx = pygame.mixer.Sound(resource_path("RPS_files/Sound_effects/Scissor_sfx.wav"))
+            self.Draw_sword_sfx = pygame.mixer.Sound(resource_path("RPS_files/Sound_effects/Draw_sword_sfx.wav"))
+            pygame.mixer.music.load(resource_path("RPS_files/Sound_effects/Background_music.mp3"))
+
+            self.Rock_sfx.set_volume(0.7)
+            self.Paper_sfx.set_volume(0.75)
+            self.Scissor_sfx.set_volume(0.9)
+            self.Draw_sword_sfx.set_volume(0.85)
+
+            self.Trumpet_lost_sfx.set_volume(0.8)
+            self.Trumpet_won_sfx.set_volume(0.8)
+            self.Trumpet_draw_sfx.set_volume(0.8)
+            
+        except Exception as error:
+            print(f"An error has been occured while loading sound effects: {error}")
+            exit()
+        
+        self.Time_sfx_loop_counter = 1
+        self.ROUND_END_sfx_played = False
+        self.GAME_END_sfx_played = False
+        self.Dominant_sfxs = [self.Trumpet_lost_sfx, self.Trumpet_won_sfx, self.Trumpet_draw_sfx, self.Rock_sfx, self.Paper_sfx , self.Scissor_sfx, self.Draw_sword_sfx]
+
+    def Music_volume_adjuster(self):
+        if pygame.mixer.get_busy():
+            for item in self.Dominant_sfxs:
+                if item.get_num_channels() > 0:
+                    pygame.mixer.music.set_volume(0.12)
+        else:
+            pygame.mixer.music.set_volume(0.18)
+
+    def Time_sound_player(self):
+        if self.Time_sfx_loop_counter %2 == 1: self.Time_sfx_1.play()
+        elif self.Time_sfx_loop_counter %2 == 0: self.Time_sfx_2.play()
+        self.Time_sfx_loop_counter += 1
+
+    # TRANSITION
+    def Start_Transition(self, next_game_state):
+        self.Transition_start_time = time.time()
+        self.Transition_next_game_state = next_game_state
+        self.Transition_phase = 1
+        self.Time_stop = True
+    
+    def Do_Transition_Circule(self):
+        if self.Transition_phase > 0:
+            Current_time = time.time()
+            Time_diff =  Current_time - self.Transition_start_time
+            if Time_diff > 0.09:
+                self.Transition_loop_counter += 1
+                self.Transition_start_time = Current_time
+
+            if self.Transition_phase == 1:
+                cv2.circle(self.master_canvas, (960,540), self.Transition_loop_counter*self.Circule_Arrow_Length + (self.Circule_Border_thickness/2).__ceil__() + self.Circule_A_C_gap + self.Circule_A_B_gap, (0,255,0), self.Circule_Border_thickness, cv2.LINE_AA)
+                cv2.circle(self.master_canvas, (960,540), self.Transition_loop_counter*self.Circule_Arrow_Length + self.Circule_A_C_gap + self.Circule_A_B_gap, (0,0,0), -1, cv2.LINE_AA)
+
+                cv2.arrowedLine(self.master_canvas, (960 - self.Circule_A_C_gap - (self.Transition_loop_counter-1)*self.Circule_Arrow_Length, 540),
+                                                    (960 - self.Circule_A_C_gap - self.Transition_loop_counter*self.Circule_Arrow_Length, 540),
+                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #left arrow
+                
+                cv2.arrowedLine(self.master_canvas, (960 + self.Circule_A_C_gap + (self.Transition_loop_counter-1)*self.Circule_Arrow_Length, 540),
+                                                    (960 + self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length, 540),
+                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #right arrow
+                
+                cv2.arrowedLine(self.master_canvas, (960, 540 - self.Circule_A_C_gap - (self.Transition_loop_counter-1)*self.Circule_Arrow_Length),
+                                                    (960, 540 - self.Circule_A_C_gap - self.Transition_loop_counter*self.Circule_Arrow_Length),
+                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #top arrow
+                
+                cv2.arrowedLine(self.master_canvas, (960, 540 + self.Circule_A_C_gap + (self.Transition_loop_counter-1)*self.Circule_Arrow_Length),
+                                                    (960, 540 + self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length),
+                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #bottom arrow
+                
+                cv2.arrowedLine(self.master_canvas, (round(960 - (self.Circule_A_C_gap + (self.Transition_loop_counter-1)*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 - (self.Circule_A_C_gap + (self.Transition_loop_counter-1)*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
+                                                    (round(960 - (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 - (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
+                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #left top arrow
+                
+                cv2.arrowedLine(self.master_canvas, (round(960 + (self.Circule_A_C_gap + (self.Transition_loop_counter-1)*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 - (self.Circule_A_C_gap + (self.Transition_loop_counter-1)*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
+                                                    (round(960 + (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 - (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
+                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #right top arrow
+                
+                cv2.arrowedLine(self.master_canvas, (round(960 + (self.Circule_A_C_gap + (self.Transition_loop_counter-1)*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 + (self.Circule_A_C_gap + (self.Transition_loop_counter-1)*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
+                                                    (round(960 + (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 + (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
+                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #right bottom arrow
+                
+                cv2.arrowedLine(self.master_canvas, (round(960 - (self.Circule_A_C_gap + (self.Transition_loop_counter-1)*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 + (self.Circule_A_C_gap + (self.Transition_loop_counter-1)*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
+                                                    (round(960 - (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 + (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
+                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #left bottom arrow
+
+                if self.Transition_loop_counter == 5 and not self.Transition_sfx_played:
+                    self.Transition_sfx.play()
+                    self.Transition_sfx_played = True
+
+                if self.Transition_loop_counter == 6:
+                    self.Transition_loop_counter = 0
+                    self.Transition_phase = 2
+                    self.Game_state = self.Transition_next_game_state
+            
+            elif self.Transition_phase == 2:
+                cv2.circle(self.master_canvas, (960,540), 960, (0,0,0), (960- self.Transition_loop_counter*self.Circule_Arrow_Length)*2, cv2.LINE_AA)
+                cv2.circle(self.master_canvas, (960,540), self.Transition_loop_counter*self.Circule_Arrow_Length + (self.Circule_Border_thickness/2).__ceil__(), (0,255,0), self.Circule_Border_thickness, cv2.LINE_AA)
+
+                cv2.arrowedLine(self.master_canvas, (960 - self.Circule_A_C_gap*2 - self.Transition_loop_counter*self.Circule_Arrow_Length, 540), 
+                                                    (960 - self.Circule_A_C_gap*2 - (self.Transition_loop_counter+1)*self.Circule_Arrow_Length, 540), 
+                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #left arrow
+                
+                cv2.arrowedLine(self.master_canvas, (960 + self.Circule_A_C_gap*2 + self.Transition_loop_counter*self.Circule_Arrow_Length, 540), 
+                                                    (960 + self.Circule_A_C_gap*2 + (self.Transition_loop_counter+1)*self.Circule_Arrow_Length, 540), 
+                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #right arrow
+                
+                cv2.arrowedLine(self.master_canvas, (960, 540 - self.Circule_A_C_gap*2 - self.Transition_loop_counter*self.Circule_Arrow_Length), 
+                                                    (960, 540 - self.Circule_A_C_gap*2 - (self.Transition_loop_counter+1)*self.Circule_Arrow_Length), 
+                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #top arrow
+                
+                cv2.arrowedLine(self.master_canvas, (960, 540 + self.Circule_A_C_gap*2 + self.Transition_loop_counter*self.Circule_Arrow_Length), 
+                                                    (960, 540 + self.Circule_A_C_gap*2 + (self.Transition_loop_counter+1)*self.Circule_Arrow_Length), 
+                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #bottom arrow
+                
+                cv2.arrowedLine(self.master_canvas, (round(960 - (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 - (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
+                                                    (round(960 - (self.Circule_A_C_gap + (self.Transition_loop_counter+1)*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 - (self.Circule_A_C_gap + (self.Transition_loop_counter+1)*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
+                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #left top arrow
+                
+                cv2.arrowedLine(self.master_canvas, (round(960 + (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 - (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
+                                                    (round(960 + (self.Circule_A_C_gap + (self.Transition_loop_counter+1)*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 - (self.Circule_A_C_gap + (self.Transition_loop_counter+1)*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
+                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #right top arrow
+                
+                cv2.arrowedLine(self.master_canvas, (round(960 + (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 + (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
+                                                    (round(960 + (self.Circule_A_C_gap + (self.Transition_loop_counter+1)*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 + (self.Circule_A_C_gap + (self.Transition_loop_counter+1)*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
+                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #right bottom arrow
+                
+                cv2.arrowedLine(self.master_canvas, (round(960 - (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 + (self.Circule_A_C_gap + self.Transition_loop_counter*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
+                                                    (round(960 - (self.Circule_A_C_gap + (self.Transition_loop_counter+1)*self.Circule_Arrow_Length)*math.sqrt(2)/2), round(540 + (self.Circule_A_C_gap + (self.Transition_loop_counter+1)*self.Circule_Arrow_Length)*math.sqrt(2)/2)),
+                                                    (0,255,0), 15, cv2.LINE_AA, tipLength=0.3) #left bottom arrow
+
+                if self.Transition_loop_counter == 6:
+                    self.Transition_loop_counter = 1
+                    self.Transition_phase = 0
+                    self.Time_stop = False
+                    self.Transition_sfx_played = False
+
+    def Display_FPS(self):
+        current_time = time.time()
+        time_difference = current_time - self.FPS_previous_time
+        
+        if time_difference > 0: fps = 1 / time_difference
+        else: fps = 9999
+            
+        self.FPS_previous_time = current_time
+
+        h, w, c = self.Camera.shape
+        text_size = cv2.getTextSize(f"FPS: {round(fps)}", cv2.FONT_HERSHEY_DUPLEX, 0.75, 2)[0]
+        cv2.rectangle(self.Camera, (w-110, 0), (w, 30), (0,0,0), -1) 
+        cv2.putText(self.Camera, f"FPS: {round(fps)}", (w-55-round(text_size[0]/2), 15+round(text_size[1]/2)), cv2.FONT_HERSHEY_DUPLEX, 0.75, (255,255,255), 2)
+
+    # STARTER & MAIN
+    def Set_starting_settings(self):
+        #---------- Camera ----------
+        self.Get_available_cameras()
+        self.cap = cv2.VideoCapture(self.available_camera_list[self.camera_list_index])
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.Camera_width)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.Camera_height)
+
+        #---------- Window ----------
+        cv2.namedWindow("Rock Paper Scissor", cv2.WINDOW_NORMAL)
+        cv2.setWindowProperty("Rock Paper Scissor", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        self.master_canvas = np.full((1080, 1920, 3), 50, dtype=np.uint8)
+
+        #---------- Mediapipe ----------
+        self.mp_Hands = mp_hands
+        self.mp_Draw = mp_drawing
+
+    def Set_default_veriables(self):
+        if self.Game_state == "TUTORIAL":
+            self.Time_countdown_TUTORIAL = 5
+
+        elif self.Game_state == "CHOOSING_ROUNDS":
+            self.Time_countdown_CHOOSING_ROUNDS = 5
+            self.Current_round = 1
+            self.Player_score = 0
+            self.Bot_score = 0
+            self.Last_selectoin_index = None
+            self.Time_sfx_loop_counter = 1
+
+        if self.Game_state == "PLAYING":
+            self.Time_countdown_PLAYING = 5
+            self.Bot_state = "Smile"
+            self.Bot_Hand_state_name = "Waiting..."
+            self.Score_given = False
+
+        if self.Game_state == "ROUND_END":
+            self.Time_countdown_ROUND_END = 5
+            self.Winner_text = ""
+            self.Round_end_phrase = ""
+            self.Score_given = False
+            self.ROUND_END_sfx_played = False
+
+        if self.Game_state == "GAME_END":
+            self.Time_countdown_GAME_END = 5
+            self.GAME_END_sfx_played = False
+
+    def GAME_STATE_FUNC(self, display_fps=True):
+        if not self.Background_music_started:
+            pygame.mixer.music.set_volume(0.25)
+            pygame.mixer.music.play(-1)
+            self.Background_music_started = True
+
+        if self.Last_frames_game_state != self.Game_state:
+            self.Set_default_veriables()
+            self.Last_frames_game_state = self.Game_state
+
+        if self.Game_state == "TUTORIAL" or self.Game_state == "CHOOSING_ROUNDS":
+            self.Camera = cv2.resize(self.Camera, (720, 540))
+
+        if display_fps:
+            self.Display_FPS() 
+
+        if self.Time_stop:
+            self.Previous_time = time.time()
+
+        if self.Game_state == "TUTORIAL": self.TUTORIAL()
+        elif self.Game_state == "CHOOSING_ROUNDS": self.CHOOSING_ROUNDS()
+        elif self.Game_state == "PLAYING": self.PLAYING()
+        elif self.Game_state == "ROUND_END": self.ROUND_END()
+        elif self.Game_state == "GAME_END": self.GAME_END()
+
     def Main(self):
         self.Set_starting_settings()
         self.Read_images()
         self.Load_sounds()
 
         with self.mp_Hands.Hands(max_num_hands=2, model_complexity=0, min_detection_confidence=0.7, min_tracking_confidence=0.7) as Hands:
-            while self.cap.isOpened():
+            while True:
                 success , self.Camera = self.cap.read()
-                if not success: print("Camera weren't successfully connected.") ; break
-                self.Camera = cv2.flip(self.Camera, 1) #Mirror
-
-                self.Set_Hand_states(Hands)
+                if not success:
+                    self.Camera = np.zeros((self.Camera_height, self.Camera_width, 3), dtype=np.uint8)
+                    camera_error_text = "Camera signal lost. Press 'Q' or 'E' to switch devices." 
+                    camera_error_text_size = cv2.getTextSize(camera_error_text, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2)[0]
+                    cv2.putText(self.Camera, camera_error_text,
+                                ((self.Camera_width-camera_error_text_size[0])//2, (self.Camera_height+camera_error_text_size[1])//2),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255,255,255), 2, cv2.LINE_AA)
+                    
+                if success:
+                    self.Camera = cv2.flip(self.Camera, 1) #Mirror
+                    self.Set_Hand_states(Hands)
+                else: self.Hand_state_name = "Waiting..."
 
                 #---------- GUI ----------
                 self.GAME_STATE_FUNC()
@@ -931,8 +978,18 @@ class RPS_OpenCV():
                 
                 #---------- Show & Close ----------
                 cv2.imshow("Rock Paper Scissor", self.master_canvas)
-                if cv2.waitKey(1) & 0xFF == 27 or self.Quit_game:
-                    break
+
+                pressing_key = cv2.waitKey(1) & 0xFF
+                if pressing_key != 255:
+                    if pressing_key == 27: break #ESC
+
+                    elif pressing_key == ord("e") and time.time()-self.switch_camera_previous_time >= self.switch_camera_cooldown:
+                        self.Switch_camera(1)
+                        self.switch_camera_previous_time = time.time()
+
+                    elif pressing_key == ord("q") and time.time()-self.switch_camera_previous_time >= self.switch_camera_cooldown: 
+                        self.Switch_camera(-1)
+                        self.switch_camera_previous_time = time.time()
 
         self.cap.release()
         cv2.destroyAllWindows()
