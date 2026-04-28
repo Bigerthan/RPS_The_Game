@@ -3,29 +3,37 @@
 ### Welcome! This is a Rock Paper Scissors game built in Python. This project utilizes OpenCV and Mediapipe for real-time hand gesture recognition. Get your camera ready to play!
 
 ---
-## [+] Download The Game [+]
+## ⬇️ Download The Game ⬇️
 Download the zip file from the links below and the Game should be there!
 
 **NOTE:** You can get a security warning when you try to open the Game but this is a standard procedure for independent software. The 'SmartScreen' warning appears because the executable is not yet digitally signed. You can safely bypass this by clicking 'More info' followed by 'Run anyway'."
 
 
-### [-] Windows [-]
+### - 🪟 Windows 🪟
 - [RPS_The_Game.exe](https://github.com/Bigerthan/RPS_The_Game/releases/download/v1.0.0/RPS_The_Game_Windows.zip)
 
-### [-] Linux (ubuntu)[-]
+### - 🐧 Linux (ubuntu) 🐧
 - [RPS_The_Game.bin](https://github.com/Bigerthan/RPS_The_Game/releases/download/v1.0.0/RPS_The_Game_Linux.zip)
 
-### [-] macOS [-]
+### - 🍎 macOS 🍎
 - [RPS_The_Game.app](https://github.com/Bigerthan/RPS_The_Game/releases/download/v1.0.0/RPS_The_Game_macOS.zip)
 
 ---
-## [+] Language & Libraries [+]
+## ⚙️ Updates ⚙️
+### 28.04.2006
+- Camera switching feature is added. Press E or Q key to switch between your cameras. This feature has 5 seconds cooldown.
+- Camera error display is added.
+- Round end countdown is increased to 5 seconds. (3 -> 5)
+- Code structure is slightly changed.
 
-### [-] Used programming language [-]
+---
+## 📖 Language & Libraries 📖
+
+### 🐍 Used programming language 🐍
 
 - Python 3.10
 
-### [-] Libraries used [-]
+### ✅ Libraries used ✅
 
 - OpenCV (Camera Handling & GUI)
 
@@ -38,12 +46,12 @@ Download the zip file from the links below and the Game should be there!
 - os, sys, time 
 
 ---
-## [+] Credits [+]
+## 🏆 Credits 🏆
 
-### [-] Developer & Designer [-]
+### 👑 Developer & Designer 👑
 - Developed and designed by: [Ertan GÜLERDEM / Bigerthan](https://github.com/Bigerthan)
 
-### [-] Music & Sound Effects [-]
+### 🎵 Music & Sound Effects 🎵
 
 **(!) NOTE (!): I have edited some sounds, but the originals are credited below.**
 
@@ -70,4 +78,5 @@ Download the zip file from the links below and the Game should be there!
 - Trumpet_won_sfx: [BenKirb](https://pixabay.com/sound-effects/musical-fanfare-1-276819)
   
 ---
-## This project is licensed under the terms of the custom license included in the LICENSE.txt file.
+## ⚖️ NOTE ⚖️
+### This project is licensed under the terms of the custom license included in the LICENSE.txt file.
