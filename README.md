@@ -4,10 +4,9 @@
 
 ---
 ## ⬇️ Download The Game ⬇️
-Download the zip file from the links below and the Game should be there!
+### Download the zip file from the links below and the Game should be there!
 
 **NOTE:** You can get a security warning when you try to open the Game but this is a standard procedure for independent software. The 'SmartScreen' warning appears because the executable is not yet digitally signed. You can safely bypass this by clicking 'More info' followed by 'Run anyway'."
-
 
 ### - 🪟 Windows 🪟
 - [RPS_The_Game.exe](https://github.com/Bigerthan/RPS_The_Game/releases/download/v1.0.0/RPS_The_Game_Windows.zip)
@@ -17,6 +16,24 @@ Download the zip file from the links below and the Game should be there!
 
 ### - 🍎 macOS 🍎
 - [RPS_The_Game.app](https://github.com/Bigerthan/RPS_The_Game/releases/download/v1.0.0/RPS_The_Game_macOS.zip)
+
+---
+## 🎮 HOW TO PLAY? 🎮
+### Welcome to the game! Your hands are the only controllers you need.
+- Before starting, look at the gestures that you will need in the game.
+- When you feel like you are ready, make the "Thumbs up/OK" gesture to continue.
+- Next, you need to choose how many rounds the match will last.
+- To select the number of rounds that you are going to play (or to leave just quit), show the corresponding hand gesture to the camera for 5 seconds.
+- The rest is casual rock paper scissors!
+  - Note: you can make the "Stop" gesture to end the game.
+### Master Key Controls:
+- **[ESC] – Exit:** Closes the game immediately.
+
+- **[E] – Next Cam:** Switches to your next available camera.
+
+- **[Q] – Prev Cam:** Switches back to the previous camera.
+
+### And finally; good luck, have fun!
 
 ---
 ## ⚙️ Updates ⚙️
