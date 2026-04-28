@@ -714,7 +714,7 @@ class RPS_OpenCV():
             "icon_Sword_red": cv2.resize(cv2.imread(resource_path("RPS_files/Images/Icons/icon_Sword_red.png")), Icon_img_size)}
 
         missing_images = [name for name, value in self.Image_Dict.items() if value is None]
-        if missing_images: print(f"ERROR: Could not find these images: {', '.join(missing_images)}") ; exit()
+        if missing_images: print(f"ERROR: Could not find these images: {', '.join(missing_images)}") ; self.Quit_game = True
 
     def Load_sounds(self):
         pygame.mixer.init()
@@ -743,7 +743,7 @@ class RPS_OpenCV():
             
         except Exception as error:
             print(f"An error has been occured while loading sound effects: {error}")
-            exit()
+            self.Quit_game = True
         
         self.Time_sfx_loop_counter = 1
         self.ROUND_END_sfx_played = False
@@ -965,7 +965,6 @@ class RPS_OpenCV():
                     cv2.putText(self.Camera, camera_error_text,
                                 ((self.Camera_width-camera_error_text_size[0])//2, (self.Camera_height+camera_error_text_size[1])//2),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255,255,255), 2, cv2.LINE_AA)
-                    
                 if success:
                     self.Camera = cv2.flip(self.Camera, 1) #Mirror
                     self.Set_Hand_states(Hands)
@@ -978,6 +977,7 @@ class RPS_OpenCV():
                 
                 #---------- Show & Close ----------
                 cv2.imshow("Rock Paper Scissor", self.master_canvas)
+                if self.Quit_game: break
 
                 pressing_key = cv2.waitKey(1) & 0xFF
                 if pressing_key != 255:
