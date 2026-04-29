@@ -34,8 +34,9 @@ jobs:
       shell: bash
       run: |
         if [ "$RUNNER_OS" == "Windows" ]; then
-          # Windows-specific build using semicolon (;) for data paths
+          # Windows build
           pyinstaller --noconsole --onefile \
+          --icon="RPS_files/Game_icon.ico" \
           --collect-all mediapipe \
           --copy-metadata mediapipe \
           --hidden-import="mediapipe.python.solutions" \
@@ -44,8 +45,9 @@ jobs:
           --add-data "RPS_files;RPS_files" \
           RPS_The_Game.py
         else
-          # Mac-specific build using colon (:) for data paths
+          # Mac/Linux build
           pyinstaller --noconsole --onefile \
+          --icon="RPS_files/Game_icon.ico" \
           --collect-all mediapipe \
           --copy-metadata mediapipe \
           --hidden-import="mediapipe.python.solutions" \
