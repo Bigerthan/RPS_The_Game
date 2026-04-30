@@ -39,7 +39,10 @@
 
 ---
 ## ⚙️ Updates ⚙️
-### 28.04.2026
+### 30.04.2026 v1.1.1
+- **Game Icon:** The game icon is added. Put the game on desktop to see.
+- **Bug Fix:** The game starting crash when you do not have any camera connected fixed.
+### 28.04.2026 v1.1.0
 - **Camera Switching:** Camera switching feature is added. Press **E** or **Q** key to switch between your cameras (5-second cooldown).
 - **Error Handling:** Camera error display is added.
 - **Timer Update:** Round end countdown is increased to 5 seconds. (3 -> 5)
