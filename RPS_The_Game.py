@@ -511,10 +511,8 @@ class RPS_OpenCV():
         try:
             angle_deg = math.degrees(math.atan2(delta_y,delta_x))
         except ZeroDivisionError:
-            if delta_y > 0:
-                angle_deg = 90
-            else:
-                angle_deg = 270
+            if delta_y > 0: angle_deg = 90
+            else: angle_deg = 270
         return angle_deg
 
     def Get_hand_rotation(self, Lm_coords):
@@ -650,7 +648,6 @@ class RPS_OpenCV():
         
         self.camera_list_index = (self.camera_list_index + delta) % len(self.available_camera_list)
         self.camera_index = self.available_camera_list[self.camera_list_index]
-
         self.cap = cv2.VideoCapture(self.camera_index)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.Camera_width)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.Camera_height)
@@ -736,7 +733,6 @@ class RPS_OpenCV():
             self.Paper_sfx.set_volume(0.75)
             self.Scissor_sfx.set_volume(0.9)
             self.Draw_sword_sfx.set_volume(0.85)
-
             self.Trumpet_lost_sfx.set_volume(0.8)
             self.Trumpet_won_sfx.set_volume(0.8)
             self.Trumpet_draw_sfx.set_volume(0.8)
@@ -755,8 +751,7 @@ class RPS_OpenCV():
             for item in self.Dominant_sfxs:
                 if item.get_num_channels() > 0:
                     pygame.mixer.music.set_volume(0.12)
-        else:
-            pygame.mixer.music.set_volume(0.18)
+        else: pygame.mixer.music.set_volume(0.18)
 
     def Time_sound_player(self):
         if self.Time_sfx_loop_counter %2 == 1: self.Time_sfx_1.play()
@@ -868,10 +863,8 @@ class RPS_OpenCV():
     def Display_FPS(self):
         current_time = time.time()
         time_difference = current_time - self.FPS_previous_time
-        
         if time_difference > 0: fps = 1 / time_difference
         else: fps = 9999
-            
         self.FPS_previous_time = current_time
 
         h, w, c = self.Camera.shape
@@ -883,15 +876,23 @@ class RPS_OpenCV():
     def Set_starting_settings(self):
         #---------- Camera ----------
         self.Get_available_cameras()
-        self.cap = cv2.VideoCapture(self.available_camera_list[self.camera_list_index])
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.Camera_width)
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.Camera_height)
+        if self.available_camera_list:
+            self.cap = cv2.VideoCapture(self.available_camera_list[self.camera_list_index])
+            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.Camera_width)
+            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.Camera_height)
+        else:
+            self.Camera = np.zeros((self.Camera_height, self.Camera_width, 3), dtype=np.uint8)
+            camera_error_text = "No camera detected! Please plug in a camera and restart the game."
+            camera_error_text_size = cv2.getTextSize(camera_error_text, cv2.FONT_HERSHEY_SIMPLEX, 0.55, 2)[0]
+            cv2.putText(self.Camera, camera_error_text,
+                        ((self.Camera_width-camera_error_text_size[0])//2, (self.Camera_height+camera_error_text_size[1])//2),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255,255,255), 2, cv2.LINE_AA)
 
         #---------- Window ----------
         cv2.namedWindow("Rock Paper Scissor", cv2.WINDOW_NORMAL)
         cv2.setWindowProperty("Rock Paper Scissor", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
         self.master_canvas = np.full((1080, 1920, 3), 50, dtype=np.uint8)
-
+        
         #---------- Mediapipe ----------
         self.mp_Hands = mp_hands
         self.mp_Draw = mp_drawing
@@ -990,7 +991,6 @@ class RPS_OpenCV():
                     elif pressing_key == ord("q") and time.time()-self.switch_camera_previous_time >= self.switch_camera_cooldown: 
                         self.Switch_camera(-1)
                         self.switch_camera_previous_time = time.time()
-
         self.cap.release()
         cv2.destroyAllWindows()
 
