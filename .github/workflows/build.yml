@@ -36,7 +36,7 @@ jobs:
         if [ "$RUNNER_OS" == "Windows" ]; then
           # Windows build
           pyinstaller --noconsole --onefile \
-          --icon="RPS_files/Images/Icons/Game_icon.ico" \
+          --icon="RPS_files/Images/Icons/Game_icon/Game_icon_1_255x255.ico" \
           --collect-all mediapipe \
           --copy-metadata mediapipe \
           --hidden-import="mediapipe.python.solutions" \
@@ -47,7 +47,7 @@ jobs:
         else
           # Mac/Linux build
           pyinstaller --noconsole --onefile \
-          --icon="RPS_files/Images/Icons/Game_icon.ico" \
+          --icon="RPS_files/Images/Icons/Game_icon/Game_icon_1_255x255.ico" \
           --collect-all mediapipe \
           --copy-metadata mediapipe \
           --hidden-import="mediapipe.python.solutions" \
