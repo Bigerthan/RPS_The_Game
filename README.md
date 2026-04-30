@@ -10,13 +10,13 @@
 
 ### Current Game Version: v1.1.0
 ### - 🪟 Windows 🪟
-- [RPS_The_Game.exe](https://github.com/Bigerthan/RPS_The_Game/releases/download/v1.1.0/windows-latest-Game-Build.zip)
+- [RPS_The_Game.exe](https://github.com/Bigerthan/RPS_The_Game/releases/download/v1.1.1/RPS_The_Game_windows_v1.1.1.zip)
 
 ### - 🐧 Linux (ubuntu) 🐧
-- [RPS_The_Game.bin](https://github.com/Bigerthan/RPS_The_Game/releases/download/v1.1.0/ubuntu-latest-Game-Build.zip)
+- [RPS_The_Game.bin](https://github.com/Bigerthan/RPS_The_Game/releases/download/v1.1.1/RPS_The_Game_linux_v1.1.1.zip)
 
 ### - 🍎 macOS 🍎
-- [RPS_The_Game.app](https://github.com/Bigerthan/RPS_The_Game/releases/download/v1.1.0/macos-latest-Game-Build.zip)
+- [RPS_The_Game.app](https://github.com/Bigerthan/RPS_The_Game/releases/download/v1.1.1/RPS_The_Game_macOS_v1.1.1.zip)
 
 ---
 ## 🎮 HOW TO PLAY? 🎮
