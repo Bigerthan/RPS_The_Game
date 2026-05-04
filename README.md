@@ -47,7 +47,11 @@
 - **Error Handling:** Camera error display is added.
 - **Timer Update:** Round end countdown is increased to 5 seconds. (3 -> 5)
 - **Optimization:** Code structure is slightly changed.
-
+- 
+---
+## 👾 Other Links 👾
+- <img width="32" height="32" alt="image" src="https://github.com/user-attachments/assets/da742be3-b969-4a2c-87e4-308ce9055ae5">[Itch.io](https://bigerthan.itch.io/rock-paper-scissors)
+  
 ---
 ## 📖 Language & Libraries 📖
 
@@ -98,7 +102,7 @@
 - Trumpet_lost_sfx: [GamingSoundEffects (Youtube)](https://www.youtube.com/watch?v=LukyMYp2noo)
 
 - Trumpet_won_sfx: [BenKirb](https://pixabay.com/sound-effects/musical-fanfare-1-276819)
-  
+
 ---
 ## ⚖️ NOTE ⚖️
 ### This project is licensed under the terms of the custom license included in the LICENSE.txt file.
