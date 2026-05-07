@@ -1,3 +1,5 @@
+<img width="725" height="575" alt="image" src="https://github.com/user-attachments/assets/8f1b09e9-eed9-48d8-ab2b-98730cff9627" />
+
 # ✊✌️✋ /-\ Rock Paper Scissors The Game /-\ ✋✌️✊
 
 ### Welcome! This is a Rock, Paper, Scissors game built in Python using OpenCV and Mediapipe for real-time hand gesture recognition. Get your camera ready to play!
