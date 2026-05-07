@@ -1,4 +1,4 @@
-<img width="725" height="575" alt="image" src="https://github.com/user-attachments/assets/8f1b09e9-eed9-48d8-ab2b-98730cff9627" />
+<img width="435" height="345" alt="image" src="https://github.com/user-attachments/assets/8f1b09e9-eed9-48d8-ab2b-98730cff9627" /> 
 
 # ✊✌️✋ /-\ Rock Paper Scissors The Game /-\ ✋✌️✊
 
