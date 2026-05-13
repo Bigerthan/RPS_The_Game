@@ -8,9 +8,9 @@
 ## ⬇️ Download The Game ⬇️
 ### Download the ZIP file for your OS below!
 
-**NOTE:** You can get a security warning when you try to open the Game but this is a standard procedure for independent software. The 'SmartScreen' warning appears because the executable is not yet digitally signed. You can safely bypass this by clicking 'More info' followed by 'Run anyway'."
-
 **NOTE:** There are some issues in Linux version for now. Also macOS version can have the same version, I can't test whater it its work or not.
+
+**NOTE:** You can get a security warning when you try to open the Game but this is a standard procedure for independent software. The 'SmartScreen' warning appears because the executable is not yet digitally signed. You can safely bypass this by clicking 'More info' followed by 'Run anyway'."
 
 ### Current Game Version: v1.1.0
 ### - 🪟 Windows 🪟
@@ -51,7 +51,7 @@
 - **Error Handling:** Camera error display is added.
 - **Timer Update:** Round end countdown is increased to 5 seconds. (3 -> 5)
 - **Optimization:** Code structure is slightly changed.
-- 
+  
 ---
 ## 👾 Other Links 👾
 - <img width="32" height="32" alt="image" src="https://github.com/user-attachments/assets/da742be3-b969-4a2c-87e4-308ce9055ae5">[Itch.io](https://bigerthan.itch.io/rock-paper-scissors)
