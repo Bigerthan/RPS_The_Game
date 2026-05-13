@@ -8,7 +8,7 @@
 ## ⬇️ Download The Game ⬇️
 ### Download the ZIP file for your OS below!
 
-**NOTE:** There are some issues in Linux version for now. Also macOS version can have the same version, I can't test whater it its work or not.
+**NOTE:** There are some issues in Linux version for now. Also macOS version can have the same issue. I can't test whater it its work or not.
 
 **NOTE:** You can get a security warning when you try to open the Game but this is a standard procedure for independent software. The 'SmartScreen' warning appears because the executable is not yet digitally signed. You can safely bypass this by clicking 'More info' followed by 'Run anyway'."
 
