@@ -81,6 +81,12 @@
 ### 👑 Developer & Designer 👑
 - Developed and designed by: [Ertan GÜLERDEM / Bigerthan](https://github.com/Bigerthan)
 
+### 👉 Hand Gesture Figures 👈
+- [Just sketch me](https://app.justsketch.me)
+
+### 😎 Opponent's Faces 😎
+- It's from minesweeper.
+
 ### 🎵 Music & Sound Effects 🎵
 
 *(NOTE: Original sounds have been edited for the game; credits for the originals are below)*
